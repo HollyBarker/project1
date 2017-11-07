@@ -20,6 +20,7 @@ friend std::ostream& operator<< (std::ostream& os, const MVector& output)
 		os<<output[i]<<",";
 	}
 	os<<output[output.size()-1]<<")";
+	return os;
 }
 
 public:
@@ -57,6 +58,7 @@ public:
 			rootsumsquares+= v[i]*v[i];
 		}
 		rootsumsquares=pow(rootsumsquares,0.5);
+		return rootsumsquares;
 	}
 
 private:
@@ -89,6 +91,7 @@ inline MVector operator+ (const MVector& lhs, const MVector& rhs)
 	else 
 	{
 		std::cout<<"ERROR: Attempted addition of two vectors of different length."<<std::endl;
+		exit(1);
 	}
 } 
 //Operator overload for "vector - vector"
@@ -103,6 +106,7 @@ inline MVector operator- (const MVector& lhs, const MVector& rhs)
 	else
 	{
 		std::cout<<"ERROR: Attempted subtraction of two vectors of different length."<<std::endl;
+		exit(1);
 	}
 }
 //Operator overload for "vector / scalar"
@@ -136,10 +140,26 @@ double dot(const MVector& lhs, const MVector& rhs)
 #define MMATRIX_H
 
 #include <vector>
+#include <iostream>
 
 // Class that represents a mathematical matrix
 class MMatrix
 {
+
+friend std::ostream& operator<< (std::ostream& os, MMatrix A)
+{
+	for (int i=0;i<A.Rows();i++)
+	{
+		for (int j=0;j<A.Cols();j++)
+		{
+			os.precision(5);
+			os.width(10);os<<A(i,j);
+		}
+		os<<std::endl;
+	}
+	return os;
+}
+
 public:
 	// constructors
 	MMatrix() : nRows(0), nCols(0) {}
@@ -193,6 +213,7 @@ MVector operator*(const MMatrix& A, const MVector& x)
 	else 
 	{
 		std::cout<<"ERROR: Attempted matrix * vector multiplication where number of matrix columns != vector length."<<std::endl;
+		exit(1);
 	}
 }
 #endif
@@ -209,10 +230,11 @@ int main()
 	{
 		for(int j=0;j<A.Cols();j++)
 		{
-			A(i,j)=3*(i+1)+(j+1);
-			std::cout<<A(i,j)<<std::endl;
+			A(i,j)=3.0*(i+1)+(j+1);
+ 
 		}
 	}
+	std::cout<<A<<std::endl;
 	
 	MVector x(3);
 	x[0]=0.5; x[1]=1.6; x[2]=3.2;
@@ -221,9 +243,6 @@ int main()
 
 	b=A*x;
 
-	for (int i=0;i<b.size();i++)
-	{
-		std::cout<<"b="<<b[i]<<std::endl;
-	}
+	std::cout<<b<<std::endl;
 	return 0;
 }
