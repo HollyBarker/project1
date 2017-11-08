@@ -235,7 +235,7 @@ MMatrix poissonMatrix(int n)
 	return A;
 }
 
-MVector ConjGradMethod(MMatrix A, MVector x, MVector b, std::ofstream& fileName)
+MVector ConjGradMethod(MMatrix A, MVector x, MVector b, int &Niter)
 {
 	int maxIterations = 1000;
 	double tol = 1e-6;
@@ -254,6 +254,7 @@ MVector ConjGradMethod(MMatrix A, MVector x, MVector b, std::ofstream& fileName)
 		{
 			beta=dot(r,r)/dot(rkm1,rkm1);
 			p=r+beta*p;
+			Niter++;
 		// ...calculate new conjugate vector p here...
 		}
 	}
@@ -262,28 +263,28 @@ MVector ConjGradMethod(MMatrix A, MVector x, MVector b, std::ofstream& fileName)
 
 int main()
 {
-	std::string extension(".txt");
-	MVector N(3); N[0]=10; N[1]=25; N[2]=100;
 	std::ofstream fileName;
-	for(int i=0;i<3;i++)
+	int Niter=0;
+	fileName.open("table_time.txt");
+	if (!fileName) return 1;
+	for(int i=1;i<101;i++)
 	{
-		int n=N[i];
-		MMatrix A= poissonMatrix(n);
+		int n=i;
+		MMatrix A=poissonMatrix(n);
 		MVector b(n), x0(n), r0(n);
-		for (int i=0;i<n;i++) 
+		for (int j=0;j<n;j++) 
 		{
-			b[i]=1/pow(n+1,2);
-			x0[i]=0;
+			b[j]=1/pow(n+1,2);
+			x0[j]=0;
 		}
 		r0=b-A*x0;
-		std::string fileNametxt(std::to_string(n)+extension);
-		fileName.open(fileNametxt);
-		if (!fileName) return 1;
-		MVector c=ConjGradMethod(A,x0,b,fileName);
-		fileName<<c<<std::endl;
-		fileName.close();
+		Niter=0;
+		MVector c=ConjGradMethod(A,x0,b,Niter);
+		fileName.width(8);
+		fileName<<n;
+		fileName.width(8);
+		fileName<<Niter<<std::endl;
 	}
-
-	
+	fileName.close();	
 	return 0;
 }
