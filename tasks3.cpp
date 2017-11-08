@@ -246,16 +246,11 @@ MVector ConjGradMethod(MMatrix A, MVector x, MVector b, std::ofstream& fileName)
 	{
 		alpha=dot(r,r)/dot(p,A*p);
 		x=x+alpha*p;
-		fileName<<x<<std::endl;
 		MVector rkm1=r;
 		r=r-alpha*(A*p);
 		// ...calculate new values for x and r here...
 		// check if solution is accurate enough
-		if (r.L2Norm() < tol)
-		{
-			fileName<<"Conjugate gradient method converged in "<<iter<<" iterations with tolerance "<<tol<<"."<<std::endl;
-			break;
-		}
+		if (r.L2Norm() < tol) break;
 		{
 			beta=dot(r,r)/dot(rkm1,rkm1);
 			p=r+beta*p;
@@ -285,7 +280,7 @@ int main()
 		fileName.open(fileNametxt);
 		if (!fileName) return 1;
 		MVector c=ConjGradMethod(A,x0,b,fileName);
-		std::cout<<c<<std::endl;
+		fileName<<c<<std::endl;
 		fileName.close();
 	}
 
