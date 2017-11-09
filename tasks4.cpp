@@ -195,7 +195,7 @@ private:
 	unsigned int nRows, nCols;
 	std::vector<double> A;
 };
-MVector operator*(const MMatrix& A, const MVector& x)
+inline MVector operator*(const MMatrix& A, const MVector& x)
 {
 	MVector b(A.Rows());
 	if (A.Cols() == x.size())
@@ -293,12 +293,31 @@ public:
 	double operator()(int i, int j) const
 	{
 		// fill this in...
+		if (j<=i+r && j>=i-l) 
+		{
+			int I=i;
+			int J=j+l-i;
+			int NCOLS=l+r+1;
+			return A[J + I * NCOLS];
+		}
+		else return 0;
 	}
 
 	// access element [lvalue]
 	double &operator()(int i, int j)
 	{
-		// fill this in...
+		if (j<=i+r && j>=i-l) 
+		{
+			int I=i;
+			int J=j+l-i;
+			int NCOLS=l+r+1;
+			return A[J + I * NCOLS];
+		}
+		else 
+		{
+			std::cout<<"ERROR: Cannot assign non-zero values for entries which are not within the band of banded matrices."<<std::endl;
+			exit(1);
+		}
 	}
 	// size of matrix
 	int Rows() const { return nRows; }
@@ -312,6 +331,31 @@ private:
 	std::vector<double> A;
 	int l, r; // number of left/right diagonals
 };
+
+inline MVector operator*(const MBandedMatrix& A, const MVector& x)
+{
+	MVector b(A.Rows());
+	if (A.Cols() == x.size())
+	{
+		double sum;
+		for (int i=0;i<A.Rows();i++)
+		{
+			sum=0;
+			for (int j=0;j<A.Cols();j++)
+			{
+				if (j<=i+A.RBands() && j>=i-A.LBands()) sum+=A(i,j)*x[j];
+			}
+			b[i]=sum;
+		}
+		return b;
+	}
+	else 
+	{
+		std::cout<<"ERROR: Attempted matrix * vector multiplication where number of matrix columns != vector length."<<std::endl;
+		exit(1);
+	}
+	
+}
 
 #endif
 
@@ -344,7 +388,7 @@ MMatrix poissonMatrix2(int n, double m)
 	return A;
 }
 
-MVector ConjGradMethod(MMatrix A, MVector x, MVector b, int &Niter)
+MVector ConjGradMethod(const MMatrix &A, MVector x, const MVector &b, int &Niter)
 {
 	int maxIterations = 1000;
 	double tol = 1e-6;
@@ -370,38 +414,16 @@ MVector ConjGradMethod(MMatrix A, MVector x, MVector b, int &Niter)
 	return x;
 }
 
+
+
 int main()
 {
-	std::ofstream fileName;
-	int Niter=0;
-	double startTime, endTime, Time;
-	fileName.open("table_time2.txt");
-	if (!fileName) return 1;
-	for(int i=1;i<101;i++)
-	{
-		//MMatrix A=poissonMatrix(i);
-		MMatrix A=poissonMatrix2(i,10);
-		MVector b(i,2.5), x0(i,0), r0(i);
-		/*for (int j=0;j<i;j++) 
-		{
-			b[j]=1/pow(i+1,2);
-			x0[j]=0;
-		}*/
-		
-		r0=b-A*x0;
-		if (i==5) std::cout<<A<< b<<x0<<r0<<std::endl;
-		Niter=0;
-		startTime=Timer();
-		MVector c=ConjGradMethod(A,x0,b,Niter);
-		endTime=Timer();
-		Time= endTime-startTime;
-		fileName.width(8);
-		fileName<<i;
-		fileName.width(8);
-		fileName<<Niter;
-		fileName.width(12);
-		fileName<<Time<<std::endl;
-	}
-	fileName.close();	
+	int size=5;
+	MBandedMatrix B(size,size,1,1,-1);
+	for(int i=0;i<size;i++) B(i,i)=4;
+	std::cout<<B<<std::endl;
+	MVector x(size,1);
+	MVector sol=B*x;
+	std::cout<<sol<<std::endl;
 	return 0;
 }
