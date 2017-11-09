@@ -256,6 +256,65 @@ double Timer()
 
 #endif
 
+#ifndef MBANDEDMATRIX_H // the 'include guard'
+#define MBANDEDMATRIX_H
+
+#include <vector>
+class MBandedMatrix
+{
+friend std::ostream& operator<<(std::ostream& output, const MBandedMatrix& banded)
+{
+	int r = banded.Rows(), c = banded.Cols();
+	for (int i = 0; i < banded.Rows(); i++)
+	{
+		// calculate position of lower and upper band
+		int jmin = std::max(std::min(i-banded.LBands(), banded.Cols()),0);
+		int jmax = std::min(i+banded.RBands()+1, banded.Cols());
+		output << "( ";
+		for (int j=0; j<jmin; j++)
+			output << 0 << "\t ";
+		for (int j=jmin; j<jmax; j++)
+			output << banded(i,j) << "\t ";
+		for (int j=jmax; j<c; j++)
+			output << 0 << "\t ";
+		output << ")\n";
+	}
+	return output;
+}
+
+public:
+	// constructors
+	MBandedMatrix() : nRows(0), nCols(0) {}
+	MBandedMatrix(int n, int m, int lband, int rband, double x = 0) : 
+		nRows(n), nCols(m), A(n * (lband + rband + 1), x), l(lband), r(rband) {}
+
+
+	// access element [rvalue]
+	double operator()(int i, int j) const
+	{
+		// fill this in...
+	}
+
+	// access element [lvalue]
+	double &operator()(int i, int j)
+	{
+		// fill this in...
+	}
+	// size of matrix
+	int Rows() const { return nRows; }
+	int Cols() const { return nCols; }
+
+	int Bands() const { return r + l + 1; } // total number of bands
+	int LBands() const { return l; } // number of left bands
+	int RBands() const { return r; } // number of right bands
+private:
+	unsigned int nRows, nCols;
+	std::vector<double> A;
+	int l, r; // number of left/right diagonals
+};
+
+#endif
+
 
 MMatrix poissonMatrix(int n)
 {
@@ -285,7 +344,7 @@ MMatrix poissonMatrix2(int n, double m)
 	return A;
 }
 
-MVector ConjGradMethod(const MMatrix &A, MVector x, const MVector &b, int &Niter)
+MVector ConjGradMethod(MMatrix A, MVector x, MVector b, int &Niter)
 {
 	int maxIterations = 1000;
 	double tol = 1e-6;
@@ -301,10 +360,12 @@ MVector ConjGradMethod(const MMatrix &A, MVector x, const MVector &b, int &Niter
 		// ...calculate new values for x and r here...
 		// check if solution is accurate enough
 		if (r.L2Norm() < tol) break;
-		beta=dot(r,r)/dot(rkm1,rkm1);
-		p=r+beta*p;
-		Niter++;
+		{
+			beta=dot(r,r)/dot(rkm1,rkm1);
+			p=r+beta*p;
+			Niter++;
 		// ...calculate new conjugate vector p here...
+		}
 	}
 	return x;
 }
@@ -314,12 +375,12 @@ int main()
 	std::ofstream fileName;
 	int Niter=0;
 	double startTime, endTime, Time;
-	fileName.open("table_time2form0.txt");
+	fileName.open("table_time2.txt");
 	if (!fileName) return 1;
 	for(int i=1;i<101;i++)
 	{
 		//MMatrix A=poissonMatrix(i);
-		MMatrix A=poissonMatrix2(i,0);
+		MMatrix A=poissonMatrix2(i,10);
 		MVector b(i,2.5), x0(i,0), r0(i);
 		/*for (int j=0;j<i;j++) 
 		{
