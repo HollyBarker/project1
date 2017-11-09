@@ -271,6 +271,20 @@ MMatrix poissonMatrix(int n)
 	return A;
 }
 
+MMatrix poissonMatrix2(int n, double m)
+{
+	MMatrix A(n,n);
+	for (int i=0;i<n;i++)
+	{
+		for (int j=0;j<n;j++)
+		{
+			if (i==j) A(i,j)=2*pow(i+1,2)+m;
+			else if (i-j==1 || j-i==1) A(i,j)=-1*pow(i+1,2);
+		}
+	}
+	return A;
+}
+
 MVector ConjGradMethod(MMatrix A, MVector x, MVector b, int &Niter)
 {
 	int maxIterations = 1000;
@@ -302,18 +316,21 @@ int main()
 	std::ofstream fileName;
 	int Niter=0;
 	double startTime, endTime, Time;
-	fileName.open("table_time.txt");
+	fileName.open("table_time2.txt");
 	if (!fileName) return 1;
 	for(int i=1;i<101;i++)
 	{
-		MMatrix A=poissonMatrix(i);
-		MVector b(i), x0(i), r0(i);
-		for (int j=0;j<i;j++) 
+		//MMatrix A=poissonMatrix(i);
+		MMatrix A=poissonMatrix2(i,10);
+		MVector b(i,2.5), x0(i,0), r0(i);
+		/*for (int j=0;j<i;j++) 
 		{
 			b[j]=1/pow(i+1,2);
 			x0[j]=0;
-		}
+		}*/
+		
 		r0=b-A*x0;
+		if (i==5) std::cout<<A<< b<<x0<<r0<<std::endl;
 		Niter=0;
 		startTime=Timer();
 		MVector c=ConjGradMethod(A,x0,b,Niter);

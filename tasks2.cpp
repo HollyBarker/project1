@@ -230,7 +230,7 @@ int main()
 	{
 		for(int j=0;j<A.Cols();j++)
 		{
-			A(i,j)=3.0*(i+1)+(j+1);
+			A(i,j)=3.0*(i)+(j);
  
 		}
 	}
