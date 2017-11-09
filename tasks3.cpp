@@ -314,12 +314,12 @@ int main()
 	std::ofstream fileName;
 	int Niter=0;
 	double startTime, endTime, Time;
-	fileName.open("table_time2form0.txt");
+	fileName.open("table_time2form10.txt");
 	if (!fileName) return 1;
 	for(int i=1;i<101;i++)
 	{
 		//MMatrix A=poissonMatrix(i);
-		MMatrix A=poissonMatrix2(i,0);
+		MMatrix A=poissonMatrix2(i,10);
 		MVector b(i,2.5), x0(i,0), r0(i);
 		/*for (int j=0;j<i;j++) 
 		{
