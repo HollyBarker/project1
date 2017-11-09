@@ -418,19 +418,6 @@ MVector ConjGradMethod(const MBandedMatrix &A, MVector& x, const MVector &b, int
 
 int main()
 {
-/*	int size=5;
-	MBandedMatrix A(size,size,1,1,-1);
-	for(int i=0;i<size;i++) A(i,i)=2;
-	MVector b(size,pow(size+1,-2)), x(size,0), r0(size);
-	r0=b-A*x;
-	std::cout<<A<<x<<b<<r0<<std::endl;
-
-	int Niter=0;
-	MVector xfinal=ConjGradMethod(A,x,b,Niter);
-	std::cout<<Niter<<std::endl<<xfinal<<std::endl; */
-
-
-
 	std::ofstream fileName;
 	int Niter=0;
 	double startTime, endTime, Time;
@@ -455,6 +442,6 @@ int main()
 		fileName.width(12);
 		fileName<<Time<<std::endl;
 	}
-	fileName.close();	
-
+	fileName.close();
+	return 0;	
 }
