@@ -220,6 +220,42 @@ MVector operator*(const MMatrix& A, const MVector& x)
 }
 #endif
 
+#ifndef TIMING_H
+#define TIMING_H
+
+#ifdef _WIN32
+	#include <windows.h>
+	#include <winbase.h>
+#endif
+
+#if defined(__linux__) || defined(__APPLE__)
+	#include <sys/time.h>
+#endif
+
+// Timer() function, returns elapsed 'wall-clock' time in seconds
+// Time zero is set the first time Timer() is called.
+double Timer()
+{
+#ifdef _WIN32
+	static LARGE_INTEGER freq, li0;
+    static bool dummy1 = QueryPerformanceFrequency(&freq);
+    static bool dummy2 = QueryPerformanceCounter(&li0);
+	LARGE_INTEGER li;
+	QueryPerformanceCounter(&li);
+	return static_cast<double>(li.QuadPart-li0.QuadPart)/static_cast<double>(freq.QuadPart);
+#endif
+
+#if defined(__linux__) || defined(__APPLE__)
+	static timeval tvStart;
+    static int dummy = gettimeofday(&tvStart, 0);
+	timeval tv;
+	gettimeofday(&tv, 0);
+	return double(tv.tv_sec-tvStart.tv_sec)+double(tv.tv_usec-tvStart.tv_usec)*0.000001;
+#endif
+}
+
+#endif
+
 
 MMatrix poissonMatrix(int n)
 {
@@ -265,25 +301,30 @@ int main()
 {
 	std::ofstream fileName;
 	int Niter=0;
+	double startTime, endTime, Time;
 	fileName.open("table_time.txt");
 	if (!fileName) return 1;
 	for(int i=1;i<101;i++)
 	{
-		int n=i;
-		MMatrix A=poissonMatrix(n);
-		MVector b(n), x0(n), r0(n);
-		for (int j=0;j<n;j++) 
+		MMatrix A=poissonMatrix(i);
+		MVector b(i), x0(i), r0(i);
+		for (int j=0;j<i;j++) 
 		{
-			b[j]=1/pow(n+1,2);
+			b[j]=1/pow(i+1,2);
 			x0[j]=0;
 		}
 		r0=b-A*x0;
 		Niter=0;
+		startTime=Timer();
 		MVector c=ConjGradMethod(A,x0,b,Niter);
+		endTime=Timer();
+		Time= endTime-startTime;
 		fileName.width(8);
-		fileName<<n;
+		fileName<<i;
 		fileName.width(8);
-		fileName<<Niter<<std::endl;
+		fileName<<Niter;
+		fileName.width(12);
+		fileName<<Time<<std::endl;
 	}
 	fileName.close();	
 	return 0;
