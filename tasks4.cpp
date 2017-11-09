@@ -388,7 +388,7 @@ MMatrix poissonMatrix2(int n, double m)
 	return A;
 }
 
-MVector ConjGradMethod(const MMatrix &A, MVector x, const MVector &b, int &Niter)
+MVector ConjGradMethod(const MBandedMatrix &A, MVector& x, const MVector &b, int &Niter)
 {
 	int maxIterations = 1000;
 	double tol = 1e-6;
@@ -418,12 +418,43 @@ MVector ConjGradMethod(const MMatrix &A, MVector x, const MVector &b, int &Niter
 
 int main()
 {
-	int size=5;
-	MBandedMatrix B(size,size,1,1,-1);
-	for(int i=0;i<size;i++) B(i,i)=4;
-	std::cout<<B<<std::endl;
-	MVector x(size,1);
-	MVector sol=B*x;
-	std::cout<<sol<<std::endl;
-	return 0;
+/*	int size=5;
+	MBandedMatrix A(size,size,1,1,-1);
+	for(int i=0;i<size;i++) A(i,i)=2;
+	MVector b(size,pow(size+1,-2)), x(size,0), r0(size);
+	r0=b-A*x;
+	std::cout<<A<<x<<b<<r0<<std::endl;
+
+	int Niter=0;
+	MVector xfinal=ConjGradMethod(A,x,b,Niter);
+	std::cout<<Niter<<std::endl<<xfinal<<std::endl; */
+
+
+
+	std::ofstream fileName;
+	int Niter=0;
+	double startTime, endTime, Time;
+	fileName.open("table_timeBANDED.txt");
+	if (!fileName) return 1;
+	for(int i=1;i<101;i++)
+	{
+		MBandedMatrix A(i,i,1,1,-1);
+		for(int j=0;j<i;j++) A(j,j)=2;
+		MVector b(i,pow(i+1,-2)), x0(i,0), r0(i);
+		r0=b-A*x0;
+		if (i==5) std::cout<<A<< b<<x0<<r0<<std::endl;
+		Niter=0;
+		startTime=Timer();
+		MVector c=ConjGradMethod(A,x0,b,Niter);
+		endTime=Timer();
+		Time= endTime-startTime;
+		fileName.width(8);
+		fileName<<i;
+		fileName.width(8);
+		fileName<<Niter;
+		fileName.width(12);
+		fileName<<Time<<std::endl;
+	}
+	fileName.close();	
+
 }

@@ -193,7 +193,7 @@ private:
 	unsigned int nRows, nCols;
 	std::vector<double> A;
 };
-MVector operator*(const MMatrix& A, const MVector& x)
+inline MVector operator*(const MMatrix& A, const MVector& x)
 {
 	MVector b(A.Rows());
 	if (A.Cols() == x.size())
