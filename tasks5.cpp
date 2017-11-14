@@ -413,6 +413,31 @@ MVector ConjGradMethod(const MBandedMatrix &A, MVector& x, const MVector &b, int
 	}
 	return x;
 }
+MVector ConjGradMethod(const MMatrix &A, MVector& x, const MVector &b, int &Niter)
+{
+	int maxIterations = 1000;
+	double tol = 1e-6;
+	MVector r=b-A*x;
+	MVector p=r;
+	double alpha=0, beta=0;
+	for (int iter=0; iter<maxIterations; iter++)
+	{
+		alpha=dot(r,r)/dot(p,A*p);
+		x=x+alpha*p;
+		MVector rkm1=r;
+		r=r-alpha*(A*p);
+		// ...calculate new values for x and r here...
+		// check if solution is accurate enough
+		if (r.L2Norm() < tol) break;
+		{
+			beta=dot(r,r)/dot(rkm1,rkm1);
+			p=r+beta*p;
+			Niter++;
+		// ...calculate new conjugate vector p here...
+		}
+	}
+	return x;
+}
 
 MMatrix largerSystemsMatrix(int n)
 {
@@ -454,21 +479,22 @@ int main()
 	//xfileLARGER.open("xfinalLARGER.txt");
 	xfileLARGERBANDED.open("xfinalLARGERBANDED.txt");
 
-	int n=100, size=n*n, counter=0, Niter=0;
+	int n=20, size=n*n, counter=0, Niter=0;
+	//MMatrix A=largerSystemsMatrix(n);
 	MBandedMatrix A=largerSystemsBanded(n);
 	MVector b(pow(n,2),pow(n+1,-2)), x0(pow(n,2),0), r0(pow(n,2));
 	MVector c=ConjGradMethod(A,x0,b,Niter);
 	for (int i=0;i<size;i++)
 	{
-		xfileLARGERBANDED.width(12); xfileLARGERBANDED.precision(8);
-		xfileLARGERBANDED<<c[i];
-		//xfileLARGER.width(12); xfileLARGER.precision(8); xfileLARGER<<c[i];
-		counter++;
+		xfileLARGERBANDED.width(15); xfileLARGERBANDED.precision(8); xfileLARGERBANDED<<c[i];
+		//xfileLARGER.width(15); xfileLARGER.precision(8); xfileLARGER<<c[i];
 		if (counter==n-1)
 		{ 
-			xfileLARGER<<std::endl;
+			//xfileLARGER<<" "<<std::endl;
+			xfileLARGERBANDED<<" "<<std::endl;
 			counter=0;
 		}
+		else counter++;
 	}
 		
 		
