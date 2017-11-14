@@ -8,6 +8,11 @@
 #define MVECTOR_H // see C++ Primer Sec. 2.9.2
 
 #include <vector>
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+#include<fstream>
+#include<string>
 
 // Class that represents a mathematical vector
 class MVector
@@ -142,7 +147,11 @@ double dot(const MVector& lhs, const MVector& rhs)
 #define MMATRIX_H
 
 #include <vector>
-#include <iostream>
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+#include<fstream>
+#include<string>
 
 // Class that represents a mathematical matrix
 class MMatrix
@@ -260,6 +269,11 @@ double Timer()
 #define MBANDEDMATRIX_H
 
 #include <vector>
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+#include<fstream>
+#include<string>
 class MBandedMatrix
 {
 friend std::ostream& operator<<(std::ostream& output, const MBandedMatrix& banded)
