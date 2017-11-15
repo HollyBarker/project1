@@ -314,32 +314,35 @@ int main()
 	std::ofstream fileName;
 	int Niter=0;
 	double startTime, endTime, Time;
-	fileName.open("table_time2form10.txt");
+	fileName.open("table_time.txt");
 	if (!fileName) return 1;
 	for(int i=1;i<101;i++)
 	{
-		//MMatrix A=poissonMatrix(i);
-		MMatrix A=poissonMatrix2(i,10);
-		MVector b(i,2.5), x0(i,0), r0(i);
-		/*for (int j=0;j<i;j++) 
+		MMatrix A=poissonMatrix(i);
+		//MMatrix A=poissonMatrix2(i,10);
+		MVector b(i), x0(i,0), r0(i);
+		for (int j=0;j<i;j++) 
 		{
 			b[j]=1/pow(i+1,2);
-			x0[j]=0;
+		}
+		/* for (int j=0;j<i;j++) 
+		{
+			b[j]=2.5;
 		}*/
 		
 		r0=b-A*x0;
-		if (i==5) std::cout<<A<< b<<x0<<r0<<std::endl;
+		//if (i==5) std::cout<<A<< b<<x0<<r0<<std::endl;
 		Niter=0;
 		startTime=Timer();
 		MVector c=ConjGradMethod(A,x0,b,Niter);
 		endTime=Timer();
 		Time= endTime-startTime;
 		fileName.width(8);
-		fileName<<i;
+		fileName<<i<<" & ";
 		fileName.width(8);
-		fileName<<Niter;
+		fileName<<Niter<<" & ";
 		fileName.width(12);
-		fileName<<Time<<std::endl;
+		fileName<<Time<<" \\"<<std::endl;
 	}
 	fileName.close();	
 	return 0;
